@@ -96,5 +96,10 @@
 -(void)userClickedOnLinePoint:(CGPoint)point {
     [_delegate userClickedOnLinePoint:point];
 }
-
+- (void) layoutSubviews
+{
+    _lineChart.frame = self.bounds;
+    _barChart.frame = self.bounds;
+    _circleChart.frame = self.bounds;
+}
 @end
