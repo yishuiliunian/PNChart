@@ -41,7 +41,7 @@
 
 @property (nonatomic) CGFloat xLabelWidth;
 
-@property (nonatomic) int yValueMax;
+@property (nonatomic) float yValueMax;
 
 @property (nonatomic,strong) CAShapeLayer * chartLine;
 

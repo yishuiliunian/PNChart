@@ -9,7 +9,12 @@
 #import "PNLineChart.h"
 #import "PNColor.h"
 #import "PNChartLabel.h"
-
+@interface PNLineChart()
+{
+    NSMutableDictionary* _yLabelsMap;
+    NSMutableDictionary* _xLabelsMap;
+}
+@end
 @implementation PNLineChart
 
 - (id)initWithFrame:(CGRect)frame
@@ -29,6 +34,9 @@
         _pathPoints = [[NSMutableArray alloc] init];
         self.userInteractionEnabled = YES;
 		[self.layer addSublayer:_chartLine];
+        _yLabelsMap = [NSMutableDictionary new];
+        _xLabelsMap = [NSMutableDictionary new];
+
     }
     
     return self;
@@ -63,7 +71,8 @@
 -(void)setYLabels:(NSArray *)yLabels
 {
     
-    
+    _yLabels = yLabels;
+    [_yLabelsMap removeAllObjects];
     float level = _yValueMax /[yLabels count];
 	
     NSInteger index = 0;
@@ -75,6 +84,7 @@
 		[label setTextAlignment:NSTextAlignmentRight];
 		label.text = [NSString stringWithFormat:@"%1.f",level * index];
 		[self addSubview:label];
+        _yLabelsMap[[NSString stringWithFormat:@"%1.f",level * index]]=label;
         index +=1 ;
 		num -= 1;
 	}
@@ -84,7 +94,7 @@
 -(void)setXLabels:(NSArray *)xLabels
 {
     _xLabels = xLabels;
-    
+    [_xLabelsMap removeAllObjects];
     if(_showLabel){
         _xLabelWidth = (self.frame.size.width - chartMargin - 30.0)/[xLabels count];
         for (NSString * labelText in xLabels) {
@@ -92,6 +102,7 @@
             PNChartLabel * label = [[PNChartLabel alloc] initWithFrame:CGRectMake(index * _xLabelWidth + 30.0, self.frame.size.height - 30.0, _xLabelWidth, 20.0)];
             [label setTextAlignment:NSTextAlignmentCenter];
             label.text = labelText;
+            _xLabelsMap[label.text] = label;
             [self addSubview:label];
         }
     }
@@ -201,6 +212,33 @@
     UIGraphicsEndImageContext();
 }
 
-
+- (void) layoutSubviews
+{
+    if(_showLabel){
+        if (_xLabels.count) {
+            _xLabelWidth = (self.frame.size.width - chartMargin - 30.0)/[_xLabels count];
+            for (NSString * labelText in _xLabels) {
+                NSInteger index = [_xLabels indexOfObject:labelText];
+                PNChartLabel * label = _xLabelsMap[labelText];
+                label.frame = CGRectMake(index * _xLabelWidth + 30.0, self.frame.size.height - 30.0, _xLabelWidth, 20.0);
+                [self addSubview:label];
+            }
+        }
+    }
+    float level = _yValueMax /[_yLabels count];
+	
+    NSInteger index = 0;
+	NSInteger num = [_yLabels count] + 1;
+	while (num > 0) {
+		CGFloat chartCavanHeight = self.frame.size.height - chartMargin * 2 - 40.0 ;
+		CGFloat levelHeight = chartCavanHeight /5.0;
+		PNChartLabel * label = _yLabelsMap[[NSString stringWithFormat:@"%1.f",level * index]];
+        label.frame = CGRectMake(0.0,chartCavanHeight - index * levelHeight + (levelHeight - yLabelHeight) , 20.0, yLabelHeight);
+		[self addSubview:label];
+        index +=1 ;
+		num -= 1;
+	}
+    [self strokeChart];
+}
 
 @end

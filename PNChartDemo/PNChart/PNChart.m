@@ -85,8 +85,6 @@
     }else{
         [self setUpChart];
     }
-	
-	
 }
 
 -(void)userClickedOnLineKeyPoint:(CGPoint)point andPointIndex:(NSInteger)index{
